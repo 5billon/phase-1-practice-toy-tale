@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 fetch('http://localhost:3000/toys')
   .then((resp) => resp.json())
   .then((toys) => toys.forEach((toy) => renderToy(toy)))
+  //.then((toys) => console.log(toys))
 
 const toyCollection = document.querySelector("#toy-collection")
 
@@ -53,7 +54,23 @@ function renderToy(toy) {
 
     function increaseLikes() {
       toy.likes = toy.likes + 1
-      p.textContent = `${toy.likes} likes`
+      console.log(toy)
+
+      fetch(`http://localhost:3000/toys/${toy.id}`, {
+        method: 'PATCH',
+        headers: {        
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+
+        body: JSON.stringify({
+          "likes": toy.likes
+        })
+          
+      })
+      .then(r => r.json())
+      .then((updatedToy) => p.textContent = `${updatedToy.likes} likes`)
+        
     }
 
 }
@@ -67,14 +84,24 @@ function handleSubmit(e) {
   const newToyImage = e.target.image.value
 
   const newToy = {
-    "id" : 9, 
     "name" : newToyName,
     "image" : newToyImage,
-    "likes" : 6
+    "likes" : 0
 
   }
-
-  renderToy(newToy)
+  fetch('http://localhost:3000/toys', {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
+    body: JSON.stringify(
+      newToy
+    )
+    
+  })
+    .then(r => r.json())
+    .then((newToy2) => renderToy(newToy2)) 
 }
 
 
